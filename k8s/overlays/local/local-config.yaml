@@ -7,34 +7,27 @@ data:
   service.yaml: |
     frontend:
       bind_addr: "0.0.0.0:8080"
-
     broker:
-      url: "redis://managed-valkey-required.invalid:6379"
-
+      url: "redis://valkey.inference-data-plane.svc.cluster.local:6379"
     model:
       id: "mlx-community/SmolLM2-135M-Instruct"
       revision: "main"
-      endpoint: "http://smollm2-135m.inference-data-plane.svc.cluster.local:8000"
+      endpoint: "http://smollm2-135m-kserve-workload-svc.inference-data-plane.svc.cluster.local:8000"
       tokenizer_id: "HuggingFaceTB/SmolLM2-135M-Instruct"
       tokenizer_revision: "main"
       context_limit: 4096
       default_max_tokens: 256
       max_output_tokens: 1024
-
     backend:
       kind: "mlx"
-      mlx_base_url: "http://host.minikube.internal:18000"
+      mlx_base_url: "http://smollm2-135m-kserve-workload-svc.inference-data-plane.svc.cluster.local:8000"
       synthetic_token_delay_ms: 0
-
     auth:
-      api_keys:
-        - "dev-key"
-
+      api_keys: ["dev-key"]
     quota:
-      requests_per_minute: 600
+      requests_per_minute: 6000
       prompt_tokens_per_minute: 1200000
       generated_tokens_per_minute: 600000
-
     streams:
       active_ttl_seconds: 3600
       result_retention_seconds: 600

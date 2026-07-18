@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: inference-model-control-plane
+  namespace: inference-data-plane
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: inference-model-reader
+  namespace: inference-data-plane
+rules:
+  - apiGroups: ["serving.kserve.io"]
+    resources: ["llminferenceservices", "llminferenceserviceconfigs"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: inference-model-control-plane
+  namespace: inference-data-plane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: inference-model-reader
+subjects:
+  - kind: ServiceAccount
+    name: inference-model-control-plane
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-control-plane-config
+  namespace: inference-data-plane
+data:
+  control-plane.yaml: |
+    bind_addr: "0.0.0.0:18100"
+    catalog_glob: "/app/models/*.yaml"
+    namespace: "inference-data-plane"
+    host_agent_url: "http://host.minikube.internal:18001"
+    host_agent_token: "local-host-agent"
+    temporal:
+      address: "temporal.inference-data-plane.svc.cluster.local:7233"
+      namespace: "default"
+      task_queue: "inference-model-lifecycle"
+  smollm2-local.yaml: |
+    apiVersion: serving.kserve.io/v1alpha2
+    kind: LLMInferenceServiceConfig
+    metadata:
+      name: smollm2-135m-model
+      annotations:
+        inference.anmho.com/revision: main
+        inference.anmho.com/tokenizer-id: HuggingFaceTB/SmolLM2-135M-Instruct
+        inference.anmho.com/tokenizer-revision: main
+        inference.anmho.com/context-limit: "4096"
+        inference.anmho.com/max-output-tokens: "1024"
+        inference.anmho.com/local-runtime: mlx-community/SmolLM2-135M-Instruct
+        inference.anmho.com/cloud-runtime: HuggingFaceTB/SmolLM2-135M-Instruct
+        inference.anmho.com/endpoint: http://smollm2-135m-kserve-workload-svc.inference-data-plane.svc.cluster.local:8000
+        inference.anmho.com/kserve-service: smollm2-135m
+    spec:
+      model:
+        uri: hf://HuggingFaceTB/SmolLM2-135M-Instruct
+        name: mlx-community/SmolLM2-135M-Instruct
+      storageInitializer:
+        enabled: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-model-control-plane
+  namespace: inference-data-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inference-model-control-plane
+  template:
+    metadata:
+      labels:
+        app: inference-model-control-plane
+    spec:
+      serviceAccountName: inference-model-control-plane
+      containers:
+        - name: control-plane
+          image: inference-data-plane/model-control-plane:dev
+          imagePullPolicy: Never
+          env:
+            - name: CONFIG_FILE
+              value: /app/config/control-plane.yaml
+          ports:
+            - containerPort: 18100
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/control-plane.yaml
+              subPath: control-plane.yaml
+            - name: config
+              mountPath: /app/models/smollm2-local.yaml
+              subPath: smollm2-local.yaml
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: config
+          configMap:
+            name: inference-control-plane-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-model-control-plane
+  namespace: inference-data-plane
+spec:
+  selector:
+    app: inference-model-control-plane
+  ports:
+    - port: 18100
+      targetPort: 18100

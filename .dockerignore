@@ -1,4 +1,6 @@
 target
+.cache
+.run
 .git
 .DS_Store
 **/*.log

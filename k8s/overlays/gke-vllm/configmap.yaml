@@ -30,9 +30,3 @@ data:
       requests_per_minute: 120
       prompt_tokens_per_minute: 120000
       generated_tokens_per_minute: 60000
-
-    gpu_idle_shutdown:
-      enabled: false
-      idle_seconds: 1
-      poll_seconds: 1
-      shutdown_command: ""

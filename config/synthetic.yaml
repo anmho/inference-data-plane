@@ -6,6 +6,10 @@ broker:
 
 model:
   id: "synthetic-fast-001"
+  revision: "v1"
+  endpoint: ""
+  tokenizer_id: "approximate"
+  tokenizer_revision: "v1"
   context_limit: 4096
   default_max_tokens: 256
   max_output_tokens: 1024
@@ -23,6 +27,13 @@ quota:
   prompt_tokens_per_minute: 12000000
   generated_tokens_per_minute: 6000000
 
+streams:
+  active_ttl_seconds: 3600
+  result_retention_seconds: 600
+  lease_seconds: 60
+  reclaim_idle_seconds: 90
+  generation_timeout_seconds: 300
+
 load_test:
   generate_vus: 16
   stream_vus: 8
@@ -31,9 +42,3 @@ load_test:
 
 smoke:
   stream_max_tokens: 128
-
-gpu_idle_shutdown:
-  enabled: false
-  idle_seconds: 1
-  poll_seconds: 1
-  shutdown_command: ""

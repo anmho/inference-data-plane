@@ -23,8 +23,8 @@ spec:
             - name: CONFIG_FILE
               value: /app/config/service.yaml
             - name: RUST_LOG
-              value: info,inference_frontend=debug,generation_worker=debug
-            - name: REDIS_URL
+              value: info,inference_frontend=debug,inference_streams=debug
+            - name: VALKEY_URL
               valueFrom:
                 secretKeyRef:
                   name: inference-valkey-url

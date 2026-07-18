@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal
+  namespace: inference-data-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal
+  template:
+    metadata:
+      labels:
+        app: temporal
+    spec:
+      containers:
+        - name: temporal
+          image: temporalio/temporal@sha256:2c344b4a39b4489fc6944db095f628f0c30659836faf11780a4dc435599e80e3
+          args: ["server", "start-dev", "--ip", "0.0.0.0"]
+          ports:
+            - containerPort: 7233
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            tcpSocket:
+              port: 7233
+            periodSeconds: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal
+  namespace: inference-data-plane
+spec:
+  selector:
+    app: temporal
+  ports:
+    - port: 7233
+      targetPort: 7233

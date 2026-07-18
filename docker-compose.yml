@@ -2,32 +2,33 @@ services:
   inference-frontend:
     build:
       context: .
-      dockerfile: crates/rust-inference-frontdoor/Dockerfile
+      dockerfile: crates/inference-frontend/Dockerfile
     environment:
       CONFIG_FILE: /app/config/service.yaml
-      REDIS_URL: redis://valkey:6379
+      VALKEY_URL: redis://valkey:6379
     volumes:
       - ${CONFIG_FILE:-./config/local.yaml}:/app/config/service.yaml:ro
     ports:
       - "8080:8080"
     depends_on:
       - valkey
-      - generation-worker
+      - inference-engine
 
-  generation-worker:
+  inference-engine:
     build:
       context: .
-      dockerfile: crates/generation-worker/Dockerfile
+      dockerfile: crates/inference-engine/Dockerfile
     environment:
       CONFIG_FILE: /app/config/service.yaml
-      REDIS_URL: redis://valkey:6379
-      MLX_BASE_URL: http://host.docker.internal:18000
+      VALKEY_URL: redis://valkey:6379
+      MODEL_ENDPOINT: http://host.docker.internal:18000
     volumes:
       - ${CONFIG_FILE:-./config/local.yaml}:/app/config/service.yaml:ro
     depends_on:
       - valkey
 
   valkey:
-    image: valkey/valkey:8-alpine
+    image: valkey/valkey:9.1.0-alpine
+    command: ["--save", "", "--appendonly", "no"]
     ports:
       - "6379:6379"

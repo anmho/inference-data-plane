@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: generation-worker
+  name: inference-engine
   namespace: inference-data-plane
 spec:
   replicas: 1
@@ -9,22 +9,22 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: generation-worker
+      app: inference-engine
   template:
     metadata:
       labels:
-        app: generation-worker
+        app: inference-engine
     spec:
       containers:
-        - name: worker
-          image: inference-data-plane/generation-worker:dev
+        - name: engine
+          image: inference-data-plane/inference-engine:dev
           imagePullPolicy: Never
           env:
             - name: CONFIG_FILE
               value: /app/config/service.yaml
             - name: RUST_LOG
-              value: info,inference_frontend=debug,generation_worker=debug
-            - name: REDIS_URL
+              value: info,inference_engine=debug,inference_streams=debug
+            - name: VALKEY_URL
               valueFrom:
                 secretKeyRef:
                   name: inference-valkey-url

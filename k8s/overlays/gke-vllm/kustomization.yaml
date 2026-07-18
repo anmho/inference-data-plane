@@ -9,8 +9,8 @@ images:
   - name: inference-data-plane/frontend
     newName: us-central1-docker.pkg.dev/anmho-infra-prod/inference/inference-frontend
     newTag: latest
-  - name: inference-data-plane/generation-worker
-    newName: us-central1-docker.pkg.dev/anmho-infra-prod/inference/generation-worker
+  - name: inference-data-plane/inference-engine
+    newName: us-central1-docker.pkg.dev/anmho-infra-prod/inference/inference-engine
     newTag: latest
 
 patches:

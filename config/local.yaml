@@ -6,6 +6,10 @@ broker:
 
 model:
   id: "mlx-community/SmolLM2-135M-Instruct"
+  revision: "main"
+  endpoint: "http://127.0.0.1:18000"
+  tokenizer_id: "HuggingFaceTB/SmolLM2-135M-Instruct"
+  tokenizer_revision: "main"
   context_limit: 4096
   default_max_tokens: 256
   max_output_tokens: 1024
@@ -24,6 +28,13 @@ quota:
   prompt_tokens_per_minute: 1200000
   generated_tokens_per_minute: 600000
 
+streams:
+  active_ttl_seconds: 3600
+  result_retention_seconds: 600
+  lease_seconds: 60
+  reclaim_idle_seconds: 90
+  generation_timeout_seconds: 300
+
 load_test:
   generate_vus: 2
   stream_vus: 1
@@ -32,9 +43,3 @@ load_test:
 
 smoke:
   stream_max_tokens: 96
-
-gpu_idle_shutdown:
-  enabled: false
-  idle_seconds: 1
-  poll_seconds: 1
-  shutdown_command: ""

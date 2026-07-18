@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: generation-worker
+  name: inference-engine
   namespace: inference-data-plane
 spec:
   template:
     spec:
       containers:
-        - name: worker
+        - name: engine
           resources:
             requests:
               cpu: 25m
