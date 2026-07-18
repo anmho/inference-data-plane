@@ -14,13 +14,10 @@ futures-util.workspace = true
 http.workspace = true
 prost.workspace = true
 reqwest.workspace = true
-redis.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_yaml.workspace = true
 sha2.workspace = true
-temporalio-client.workspace = true
-temporalio-common.workspace = true
 tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
@@ -28,5 +25,5 @@ tracing-subscriber.workspace = true
 url.workspace = true
 uuid.workspace = true
 
-generation-quota-limiter = { path = "../generation-quota-limiter" }
+inference-streams = { path = "../inference-streams" }
 token-budget-engine = { path = "../token-budget-engine" }

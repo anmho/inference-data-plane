@@ -4,7 +4,8 @@ package inference.v1;
 
 service InferenceService {
   rpc Generate(GenerateRequest) returns (GenerateResponse);
-  rpc StreamGenerate(GenerateRequest) returns (stream GenerateChunk);
+  rpc StreamGenerate(GenerateRequest) returns (stream GenerationEvent);
+  rpc SubscribeGeneration(SubscribeGenerationRequest) returns (stream GenerationEvent);
 }
 
 message ChatMessage {
@@ -29,10 +30,19 @@ message GenerateResponse {
   string finish_reason = 6;
 }
 
-message GenerateChunk {
+message SubscribeGenerationRequest {
+  string request_id = 1;
+  optional string after_event_id = 2;
+}
+
+message GenerationEvent {
   string request_id = 1;
   string model = 2;
   string delta = 3;
   uint64 generated_tokens = 4;
   string finish_reason = 5;
+  string event_id = 6;
+  string attempt_id = 7;
+  uint64 prompt_tokens = 8;
+  bool terminal = 9;
 }

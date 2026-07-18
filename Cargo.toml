@@ -2,9 +2,10 @@
 members = [
     "crates/token-budget-engine",
     "crates/generation-quota-limiter",
-    "crates/rust-inference-frontdoor",
-    "crates/generation-worker",
+    "crates/inference-frontend",
+    "crates/inference-engine",
     "crates/inference-control-plane",
+    "crates/inference-streams",
 ]
 resolver = "2"
 
@@ -22,10 +23,11 @@ chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive"] }
 futures-util = "0.3"
 futures = "0.3"
+fred = "10.1"
 http = "1"
 prost = "0.14"
 reqwest = { version = "0.12", features = ["json", "stream"] }
-redis = { version = "0.32", features = ["tokio-comp"] }
+redis = { version = "0.32", features = ["tokio-comp", "connection-manager"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
