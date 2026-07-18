@@ -1,0 +1,130 @@
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: scripts/k6-connect.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 3 max VUs, 50s max duration (incl. graceful stop):
+              * generate: 2 looping VUs for 20s (exec: generate, gracefulStop: 30s)
+              * stream_generate: 1 looping VUs for 20s (exec: streamGenerate, gracefulStop: 30s)
+
+
+running (01.0s), 3/3 VUs, 5 complete and 0 interrupted iterations
+generate          [   5% ] 2 VUs  01.0s/20s
+stream_generate   [   5% ] 1 VUs  01.0s/20s
+
+running (02.0s), 3/3 VUs, 11 complete and 0 interrupted iterations
+generate          [  10% ] 2 VUs  02.0s/20s
+stream_generate   [  10% ] 1 VUs  02.0s/20s
+
+running (03.0s), 3/3 VUs, 16 complete and 0 interrupted iterations
+generate          [  15% ] 2 VUs  03.0s/20s
+stream_generate   [  15% ] 1 VUs  03.0s/20s
+
+running (04.0s), 3/3 VUs, 22 complete and 0 interrupted iterations
+generate          [  20% ] 2 VUs  04.0s/20s
+stream_generate   [  20% ] 1 VUs  04.0s/20s
+
+running (05.0s), 3/3 VUs, 27 complete and 0 interrupted iterations
+generate          [  25% ] 2 VUs  05.0s/20s
+stream_generate   [  25% ] 1 VUs  05.0s/20s
+
+running (06.0s), 3/3 VUs, 31 complete and 0 interrupted iterations
+generate          [  30% ] 2 VUs  06.0s/20s
+stream_generate   [  30% ] 1 VUs  06.0s/20s
+
+running (07.0s), 3/3 VUs, 35 complete and 0 interrupted iterations
+generate          [  35% ] 2 VUs  07.0s/20s
+stream_generate   [  35% ] 1 VUs  07.0s/20s
+
+running (08.0s), 3/3 VUs, 38 complete and 0 interrupted iterations
+generate          [  40% ] 2 VUs  08.0s/20s
+stream_generate   [  40% ] 1 VUs  08.0s/20s
+
+running (09.0s), 3/3 VUs, 39 complete and 0 interrupted iterations
+generate          [  45% ] 2 VUs  09.0s/20s
+stream_generate   [  45% ] 1 VUs  09.0s/20s
+
+running (10.0s), 3/3 VUs, 40 complete and 0 interrupted iterations
+generate          [  50% ] 2 VUs  10.0s/20s
+stream_generate   [  50% ] 1 VUs  10.0s/20s
+
+running (11.0s), 3/3 VUs, 43 complete and 0 interrupted iterations
+generate          [  55% ] 2 VUs  11.0s/20s
+stream_generate   [  55% ] 1 VUs  11.0s/20s
+
+running (12.0s), 3/3 VUs, 46 complete and 0 interrupted iterations
+generate          [  60% ] 2 VUs  12.0s/20s
+stream_generate   [  60% ] 1 VUs  12.0s/20s
+
+running (13.0s), 3/3 VUs, 50 complete and 0 interrupted iterations
+generate          [  65% ] 2 VUs  13.0s/20s
+stream_generate   [  65% ] 1 VUs  13.0s/20s
+
+running (14.0s), 3/3 VUs, 54 complete and 0 interrupted iterations
+generate          [  70% ] 2 VUs  14.0s/20s
+stream_generate   [  70% ] 1 VUs  14.0s/20s
+
+running (15.0s), 3/3 VUs, 58 complete and 0 interrupted iterations
+generate          [  75% ] 2 VUs  15.0s/20s
+stream_generate   [  75% ] 1 VUs  15.0s/20s
+
+running (16.0s), 3/3 VUs, 62 complete and 0 interrupted iterations
+generate          [  80% ] 2 VUs  16.0s/20s
+stream_generate   [  80% ] 1 VUs  16.0s/20s
+
+running (17.0s), 3/3 VUs, 65 complete and 0 interrupted iterations
+generate          [  85% ] 2 VUs  17.0s/20s
+stream_generate   [  85% ] 1 VUs  17.0s/20s
+
+running (18.0s), 3/3 VUs, 67 complete and 0 interrupted iterations
+generate          [  90% ] 2 VUs  18.0s/20s
+stream_generate   [  90% ] 1 VUs  18.0s/20s
+
+running (19.0s), 3/3 VUs, 71 complete and 0 interrupted iterations
+generate          [  95% ] 2 VUs  19.0s/20s
+stream_generate   [  95% ] 1 VUs  19.0s/20s
+
+running (20.0s), 3/3 VUs, 76 complete and 0 interrupted iterations
+generate          [ 100% ] 2 VUs  20.0s/20s
+stream_generate   [ 100% ] 1 VUs  20.0s/20s
+
+     ✓ StreamGenerate status 200
+     ✓ StreamGenerate connect envelopes
+     ✓ Generate status 200
+     ✓ Generate protobuf body
+
+   ✓ checks.........................: 100.00% ✓ 158        ✗ 0  
+     data_received..................: 140 kB  6.8 kB/s
+     data_sent......................: 23 kB   1.1 kB/s
+     generate_latency...............: avg=722.51ms min=332.51ms med=625.92ms max=2.24s p(90)=1.11s    p(95)=1.22s   
+     generate_requests..............: 52      2.548733/s
+     generate_tokens................: 1612    79.010719/s
+     generated_tokens...............: 2260    110.771852/s
+     http_req_blocked...............: avg=31.7µs   min=2µs      med=3µs      max=718µs p(90)=8.6µs    p(95)=30.99µs 
+     http_req_connecting............: avg=7.6µs    min=0s       med=0s       max=205µs p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=716.17ms min=169.45ms med=629.56ms max=2.24s p(90)=1.07s    p(95)=1.33s   
+       { expected_response:true }...: avg=716.17ms min=169.45ms med=629.56ms max=2.24s p(90)=1.07s    p(95)=1.33s   
+   ✓ http_req_failed................: 0.00%   ✓ 0          ✗ 79 
+     http_req_receiving.............: avg=239.64ms min=32µs     med=57µs     max=1.76s p(90)=725.78ms p(95)=981.67ms
+     http_req_sending...............: avg=33.75µs  min=12µs     med=21µs     max=299µs p(90)=41.4µs   p(95)=52.49µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s    p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=476.49ms min=1.71ms   med=513.82ms max=2.24s p(90)=952.04ms p(95)=1.14s   
+     http_reqs......................: 79      3.872113/s
+     iteration_duration.............: avg=767.46ms min=222.21ms med=681.53ms max=2.29s p(90)=1.12s    p(95)=1.38s   
+     iterations.....................: 79      3.872113/s
+     stream_latency.................: avg=703.95ms min=169.45ms med=630ms    max=1.76s p(90)=1.01s    p(95)=1.48s   
+     stream_requests................: 27      1.323381/s
+     stream_tokens..................: 648     31.761133/s
+     vus............................: 3       min=3        max=3
+     vus_max........................: 3       min=3        max=3
+
+
+running (20.4s), 0/3 VUs, 79 complete and 0 interrupted iterations
+generate        ✓ [ 100% ] 2 VUs  20s
+stream_generate ✓ [ 100% ] 1 VUs  20s

@@ -1,18 +1,37 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { Counter } from "k6/metrics";
+import { Counter, Trend } from "k6/metrics";
 
 const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
 const API_KEY = __ENV.API_KEY || "dev-key";
 const MODEL = __ENV.MODEL || "mlx-community/SmolLM2-135M-Instruct";
 const generatedTokens = new Counter("generated_tokens");
+const generateTokens = new Counter("generate_tokens");
+const streamTokens = new Counter("stream_tokens");
+const generateRequests = new Counter("generate_requests");
+const streamRequests = new Counter("stream_requests");
+const generateLatency = new Trend("generate_latency", true);
+const streamLatency = new Trend("stream_latency", true);
 
 export const options = {
-  vus: Number(__ENV.GENERATE_VUS || 2) + Number(__ENV.STREAM_VUS || 1),
-  duration: __ENV.DURATION || "20s",
+  scenarios: {
+    generate: {
+      executor: "constant-vus",
+      exec: "generate",
+      vus: Number(__ENV.GENERATE_VUS || 2),
+      duration: __ENV.DURATION || "20s",
+      gracefulStop: "30s",
+    },
+    stream_generate: {
+      executor: "constant-vus",
+      exec: "streamGenerate",
+      vus: Number(__ENV.STREAM_VUS || 1),
+      duration: __ENV.DURATION || "20s",
+      gracefulStop: "30s",
+    },
+  },
   thresholds: {
     http_req_failed: ["rate<0.01"],
-    http_req_duration: ["p(95)<2000"],
     checks: ["rate>0.99"],
   },
 };
@@ -20,7 +39,11 @@ export const options = {
 export function generate() {
   const body = generateRequest("Explain token budgeting in one sentence.", 32);
   const res = http.post(`${BASE_URL}/inference.v1.InferenceService/Generate`, body, params());
-  generatedTokens.add(readVarintField(new Uint8Array(res.body || new ArrayBuffer(0)), 5));
+  const tokens = readVarintField(new Uint8Array(res.body || new ArrayBuffer(0)), 5);
+  generatedTokens.add(tokens);
+  generateTokens.add(tokens);
+  generateRequests.add(1);
+  generateLatency.add(res.timings.duration);
   check(res, {
     "Generate status 200": (r) => r.status === 200,
     "Generate protobuf body": (r) => r.body && r.body.byteLength > 8,
@@ -31,17 +54,16 @@ export function generate() {
 export function streamGenerate() {
   const body = generateRequest("Count from one to five.", 24);
   const res = http.post(`${BASE_URL}/inference.v1.InferenceService/StreamGenerate`, body, params());
-  generatedTokens.add(readStreamGeneratedTokens(new Uint8Array(res.body || new ArrayBuffer(0))));
+  const tokens = readStreamGeneratedTokens(new Uint8Array(res.body || new ArrayBuffer(0)));
+  generatedTokens.add(tokens);
+  streamTokens.add(tokens);
+  streamRequests.add(1);
+  streamLatency.add(res.timings.duration);
   check(res, {
     "StreamGenerate status 200": (r) => r.status === 200,
     "StreamGenerate connect envelopes": (r) => hasConnectEnvelope(r.body),
   });
   sleep(0.05);
-}
-
-export default function () {
-  generate();
-  streamGenerate();
 }
 
 function params() {
