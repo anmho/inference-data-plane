@@ -62,38 +62,49 @@ graph TB
 ### Core Components
 
 #### 1. **Rust Inference Frontend** (`rust-inference-frontdoor`)
+**Repository:** [crates/rust-inference-frontdoor](https://github.com/anmho/inference-data-plane/tree/main/crates/rust-inference-frontdoor) | **Entrypoint:** [src/main.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/rust-inference-frontdoor/src/main.rs) | **Cargo:** [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/rust-inference-frontdoor/Cargo.toml)
+
 - **Purpose:** HTTP/gRPC gateway for vLLM inference requests
 - **API Layer:** Dual protocol support:
   - **OpenAI-compatible JSON/HTTP** for external clients (`/v1/chat/completions` style)
-  - **Proto/RPC** for internal service-to-service communication (`application/connect+proto`)
+  - **Proto/RPC** for internal service-to-service communication (`application/connect+proto`) — see [inference.proto](https://github.com/anmho/inference-data-plane/blob/main/proto/inference/v1/inference.proto)
 - **Features:**
-  - API key authentication & quota checking
-  - Token budget enforcement (pre-request validation)
+  - API key authentication & quota checking via [generation-quota-limiter](https://github.com/anmho/inference-data-plane/tree/main/crates/generation-quota-limiter)
+  - Token budget enforcement via [token-budget-engine](https://github.com/anmho/inference-data-plane/tree/main/crates/token-budget-engine) (pre-request validation)
   - Request/response streaming
   - Redis-backed session caching
   - Graceful error handling with structured logging
+- **Dependencies:** [Axum 0.8](https://github.com/tokio-rs/axum), [Tokio](https://tokio.rs/), [Tower-HTTP](https://github.com/tower-rs/tower-http)
+- **Testing:** [connect_smoke.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/rust-inference-frontdoor/src/bin/connect_smoke.rs) for smoke tests
 
 #### 2. **Generation Worker** (`generation-worker`)
+**Repository:** [crates/generation-worker](https://github.com/anmho/inference-data-plane/tree/main/crates/generation-worker) | **Entrypoint:** [src/main.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-worker/src/main.rs) | **Cargo:** [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-worker/Cargo.toml)
+
 - **Purpose:** Async inference job processing via Temporal workflows
 - **Components:**
-  - **Temporal Worker** (`src/bin/temporal_worker.rs`): Executes inference tasks from queue
-  - **Local Valkey Worker** (`src/main.rs`): Redis stream consumer for local testing
-  - **Features:**
-    - mTLS support for Temporal (gRPC + TLS)
-    - Wake-from-zero autoscaling via KEDA
-    - Async job queue for batch processing
-    - Temporal workflow integration
+  - **Local Valkey Worker** ([src/main.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-worker/src/main.rs)): Redis stream consumer for local testing
+  - **Cloud Run Dockerfile:** [Dockerfile](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-worker/Dockerfile)
+- **Features:**
+  - mTLS support for Temporal (gRPC + TLS) via [temporalio SDK 0.4.0](https://github.com/temporalio/sdk-rust)
+  - Wake-from-zero autoscaling via [KEDA](https://keda.sh/) — see [crema-scaledobject.yaml](https://github.com/anmho/inference-data-plane/blob/main/cloudrun/crema-scaledobject.yaml)
+  - Async job queue for batch processing
+  - Temporal workflow integration
+- **Dependencies:** [Temporalio SDK 0.4.0](https://github.com/temporalio/sdk-rust), [Tokio](https://tokio.rs/)
 
 #### 3. **Token Budget Engine** (`token-budget-engine`)
+**Repository:** [crates/token-budget-engine](https://github.com/anmho/inference-data-plane/tree/main/crates/token-budget-engine) | **Lib:** [src/lib.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/token-budget-engine/src/lib.rs) | **Cargo:** [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/token-budget-engine/Cargo.toml)
+
 - **Purpose:** Token accounting and budget enforcement
 - **Capabilities:**
-  - Approximate token counting (via ml-tokenizers)
-  - Budget policy enforcement (StrictReject, TrialReject)
+  - Approximate token counting (via [ml-tokenizers](https://docs.rs/ml-tokenizers/latest/ml_tokenizers/))
+  - Budget policy enforcement (`StrictReject`, `TrialReject`)
   - Per-minute token rate limits
   - Prompt/completion token tracking
-  - Test fixtures for validation
+  - Test fixtures for validation ([tests/](https://github.com/anmho/inference-data-plane/tree/main/crates/token-budget-engine/tests))
 
 #### 4. **Generation Quota Limiter** (`generation-quota-limiter`)
+**Repository:** [crates/generation-quota-limiter](https://github.com/anmho/inference-data-plane/tree/main/crates/generation-quota-limiter) | **Lib:** [src/lib.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-quota-limiter/src/lib.rs) | **Cargo:** [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-quota-limiter/Cargo.toml)
+
 - **Purpose:** Rate limiting and quota management
 - **Features:**
   - In-memory quota tracking
@@ -102,6 +113,8 @@ graph TB
   - Concurrent quota checks
 
 #### 5. **Control Plane** (`inference-control-plane`)
+**Repository:** [crates/inference-control-plane](https://github.com/anmho/inference-data-plane/tree/main/crates/inference-control-plane) | **Lib:** [src/lib.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/inference-control-plane/src/lib.rs) | **Cargo:** [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/inference-control-plane/Cargo.toml)
+
 - **Purpose:** Orchestration and lifecycle management
 - **Responsibilities:**
   - Job scheduling
@@ -212,11 +225,13 @@ graph TB
 ```
 
 ### Cloud Run (Serverless)
+**Cloud Run Config:** [cloudrun/](https://github.com/anmho/inference-data-plane/tree/main/cloudrun)
+
 - **Components:**
-  - `frontend-service.yaml` - Rust frontend service
-  - `temporal-worker-pool.yaml` - KEDA-managed worker pool (scales 0→N)
-  - `vllm-gpu-service.yaml` - vLLM GPU backend
-  - `crema-scaledobject.yaml` - KEDA scaler configuration
+  - [frontend-service.yaml](https://github.com/anmho/inference-data-plane/blob/main/cloudrun/frontend-service.yaml) - Rust frontend service
+  - [temporal-worker-pool.yaml](https://github.com/anmho/inference-data-plane/blob/main/cloudrun/temporal-worker-pool.yaml) - KEDA-managed worker pool (scales 0→N)
+  - [vllm-gpu-service.yaml](https://github.com/anmho/inference-data-plane/blob/main/cloudrun/vllm-gpu-service.yaml) - vLLM GPU backend
+  - [crema-scaledobject.yaml](https://github.com/anmho/inference-data-plane/blob/main/cloudrun/crema-scaledobject.yaml) - KEDA scaler configuration
 
 - **Features:**
   - Wake-from-zero autoscaling
@@ -224,17 +239,32 @@ graph TB
   - Temporary Memorystore (Redis) for benchmarks
   - No idle cost when not in use
 
+**Deployment Scripts:**
+- [cloudrun-gpu-deploy.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/cloudrun-gpu-deploy.sh) - Deploy vLLM GPU backend
+- [cloudrun-deploy.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/cloudrun-deploy.sh) - Deploy frontend & workers
+- [cloudrun-cleanup.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/cloudrun-cleanup.sh) - Clean up resources
+
 ### Kubernetes (GKE)
+**Kubernetes Config:** [k8s/](https://github.com/anmho/inference-data-plane/tree/main/k8s)
+
 - **Manifests:**
-  - Base configs: `k8s/base/` (frontend, workers, configmaps)
-  - Overlays: `k8s/overlays/gke/` (low-cost resources)
-  - GPU support: `k8s/overlays/gke-vllm/` (L4 GPU tolerations)
+  - Base configs: [k8s/base/](https://github.com/anmho/inference-data-plane/tree/main/k8s/base) (frontend, workers, configmaps)
+    - [frontend.yaml](https://github.com/anmho/inference-data-plane/blob/main/k8s/base/frontend.yaml)
+    - [inference-engine.yaml](https://github.com/anmho/inference-data-plane/blob/main/k8s/base/inference-engine.yaml)
+    - [kustomization.yaml](https://github.com/anmho/inference-data-plane/blob/main/k8s/base/kustomization.yaml)
+  - Overlays: 
+    - [k8s/overlays/gke/](https://github.com/anmho/inference-data-plane/tree/main/k8s/overlays/gke) - Low-cost resources
+    - [k8s/overlays/gke-vllm/](https://github.com/anmho/inference-data-plane/tree/main/k8s/overlays/gke-vllm) - L4 GPU tolerations
 
 - **Features:**
   - Kustomize-based configuration management
   - Multi-environment support
   - Resource quota limits
   - GPU node affinity
+
+**Deployment Scripts:**
+- [minikube-deploy.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/minikube-deploy.sh) - Local Minikube deployment
+- [k6-connect.js](https://github.com/anmho/inference-data-plane/blob/main/scripts/k6-connect.js) - Load testing with k6
 
 ---
 
@@ -324,7 +354,11 @@ TEMPORAL_TLS_KEY_SECRET=temporal-key
 
 ## Protocol & API Design
 
+**Proto Definitions:** [proto/inference/v1/](https://github.com/anmho/inference-data-plane/tree/main/proto/inference/v1)
+
 ### OpenAI-Compatible API (External)
+Used by external clients (web/mobile apps, API consumers). Implements OpenAI chat completion compatibility for easy client adoption.
+
 ```json
 POST /v1/chat/completions
 Content-Type: application/json
@@ -341,7 +375,13 @@ Content-Type: application/json
 }
 ```
 
+See [connect_smoke.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/rust-inference-frontdoor/src/bin/connect_smoke.rs) for client usage examples.
+
 ### Internal Proto/RPC API (Service-to-Service)
+Binary protocol for efficient internal communication via [Connect protocol](https://connectrpc.com/).
+
+**Full Definition:** [inference.proto](https://github.com/anmho/inference-data-plane/blob/main/proto/inference/v1/inference.proto)
+
 ```protobuf
 service InferenceService {
   rpc Generate(GenerateRequest) returns (GenerateResponse);
@@ -468,6 +508,8 @@ GET /readyz   # Readiness probe
 
 ## Testing & Benchmarking
 
+**Scripts Directory:** [scripts/](https://github.com/anmho/inference-data-plane/tree/main/scripts)
+
 ### Local Testing
 ```bash
 # Start all services (vLLM, Redis, Frontend)
@@ -475,10 +517,17 @@ GET /readyz   # Readiness probe
 
 # Run smoke tests
 cargo run -q -p inference-frontend --bin connect_smoke
+```
 
-# Load testing (k6)
+See [connect_smoke.rs](https://github.com/anmho/inference-data-plane/blob/main/crates/rust-inference-frontdoor/src/bin/connect_smoke.rs) for implementation.
+
+### Load Testing (k6)
+```bash
+# Load testing with k6
 ./scripts/load.sh
 ```
+
+Load test script: [k6-connect.js](https://github.com/anmho/inference-data-plane/blob/main/scripts/k6-connect.js)
 
 ### Cloud Run Benchmarking
 ```bash
@@ -493,6 +542,13 @@ TEMPORAL_API_KEY_SECRET=temporal-api-key make cloudrun-bench-once
 ./scripts/cloudrun-cleanup.sh
 ```
 
+**Benchmark Scripts:**
+- [cloudrun-gpu-deploy.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/cloudrun-gpu-deploy.sh) - Deploy vLLM GPU backend
+- [cloudrun-deploy.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/cloudrun-deploy.sh) - Deploy frontend & workers
+- [crema-deploy.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/crema-deploy.sh) - Deploy KEDA scaler
+- [cloudrun-cleanup.sh](https://github.com/anmho/inference-data-plane/blob/main/scripts/cloudrun-cleanup.sh) - Clean up resources
+- [Makefile](https://github.com/anmho/inference-data-plane/blob/main/Makefile) - `cloudrun-bench-once` and `cloudrun-verify-idle` targets
+
 ### Idle Verification
 ```bash
 # Verify no leftover paid resources
@@ -504,29 +560,38 @@ make cloudrun-verify-idle
 ## Crates & Dependencies
 
 ### Workspace Structure
+**Root Manifest:** [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/Cargo.toml)
+
 ```
 inference-data-plane/
 ├── crates/
 │   ├── rust-inference-frontdoor/  # HTTP gateway (Axum)
+│   │   └── [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/rust-inference-frontdoor/Cargo.toml)
 │   ├── generation-worker/          # Temporal async worker
+│   │   └── [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-worker/Cargo.toml)
 │   ├── token-budget-engine/        # Token budgeting lib
+│   │   └── [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/token-budget-engine/Cargo.toml)
 │   ├── generation-quota-limiter/   # Rate limiting lib
+│   │   └── [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/generation-quota-limiter/Cargo.toml)
 │   ├── inference-control-plane/    # Orchestration lib
+│   │   └── [Cargo.toml](https://github.com/anmho/inference-data-plane/blob/main/crates/inference-control-plane/Cargo.toml)
 │   └── gpu-idler/                  # GPU utility
-├── proto/                          # Protobuf definitions
-├── k8s/                            # Kubernetes manifests
-├── cloudrun/                       # Cloud Run configs
-├── scripts/                        # Deployment automation
+├── proto/                          # [Protobuf definitions](https://github.com/anmho/inference-data-plane/tree/main/proto)
+├── k8s/                            # [Kubernetes manifests](https://github.com/anmho/inference-data-plane/tree/main/k8s)
+├── cloudrun/                       # [Cloud Run configs](https://github.com/anmho/inference-data-plane/tree/main/cloudrun)
+├── scripts/                        # [Deployment automation](https://github.com/anmho/inference-data-plane/tree/main/scripts)
+├── config/                         # [Configuration files](https://github.com/anmho/inference-data-plane/tree/main/config)
 └── Cargo.toml                      # Workspace root
 ```
 
 ### Key Dependencies
-- **Web:** Axum 0.8, Tower-HTTP 0.6
-- **Async:** Tokio 1.x, Futures 0.3
-- **gRPC:** Temporalio SDK 0.4.0, Tonic
-- **Serialization:** Serde, Prost
-- **Storage:** Redis 0.32 (async)
-- **Observability:** Tracing, Tracing-Subscriber
+- **Web:** [Axum 0.8](https://docs.rs/axum/latest/axum/), [Tower-HTTP 0.6](https://docs.rs/tower-http/latest/tower_http/)
+- **Async:** [Tokio 1.x](https://tokio.rs/), [Futures 0.3](https://docs.rs/futures/latest/futures/)
+- **gRPC:** [Temporalio SDK 0.4.0](https://github.com/temporalio/sdk-rust), [Tonic](https://github.com/hyperium/tonic)
+- **Serialization:** [Serde](https://serde.rs/), [Prost](https://docs.rs/prost/latest/prost/)
+- **Storage:** [Redis 0.32](https://docs.rs/redis/latest/redis/) (async)
+- **Observability:** [Tracing](https://docs.rs/tracing/latest/tracing/), [Tracing-Subscriber](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/)
+- **Token Counting:** [ml-tokenizers](https://docs.rs/ml-tokenizers/latest/ml_tokenizers/)
 
 ---
 
