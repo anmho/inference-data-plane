@@ -54,6 +54,8 @@ The Go control plane is outside the token hot path:
 - Temporal runs model load/readiness/drain/unload workflows only. It does not run one workflow per inference request or token.
 - The MLX host agent accepts only catalogued model IDs and fixed launch settings, and stops only processes it owns.
 
+Tokenizer state is part of the runtime footprint. The current single-model path records tokenizer identity and revision, but does not pretend that tokenizer RAM is independently measured or schedulable. A future multi-model runtime should measure tokenizer memory, group compatible models by tokenizer family, and amortize shared tokenizer state before adding placement or eviction decisions.
+
 Local model: `mlx-community/SmolLM2-135M-Instruct` on MLX/Metal.
 
 NVIDIA model identity: `HuggingFaceTB/SmolLM2-135M-Instruct` for vLLM.
