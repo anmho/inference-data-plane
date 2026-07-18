@@ -33,6 +33,18 @@ Public ConnectRPC methods:
 
 Completed result Streams expire after 10 minutes. Client disconnection does not cancel generation.
 
+## Length, Batching, and Termination
+
+These are separate limits with different owners:
+
+- The frontend applies `prompt_tokens + max_tokens <= context_limit` before publishing a job. `max_tokens` is the per-request output budget; it is not a batch-size setting.
+- The engine forwards `max_tokens` and optional `stop` strings to the model runtime. The new `stop` field supports markers such as `[END]`; EOS and stop-token handling remain runtime responsibilities. vLLM documents `max_tokens`, `stop`, `stop_token_ids`, and EOS behavior in its [SamplingParams API](https://docs.vllm.ai/en/latest/api/vllm/).
+- A runtime's model-length ceiling is separate from the request budget. The GKE vLLM deployment pins `--max-model-len 4096`; vLLM documents that engine arguments control online serving and that `--max-num-seqs` and `--max-num-batched-tokens` shape scheduler capacity, not an individual response's length ([engine arguments](https://docs.vllm.ai/en/stable/configuration/engine_args/)).
+- vLLM provides continuous batching inside the model server. This repository's current engine consumes one job at a time per process, so the local benchmark does not claim to measure continuous-batching throughput. Increasing engine concurrency is a separate performance milestone because it changes fairness, cancellation, and quota behavior.
+- A model stop condition becomes a `GenerationCompleted` result with `finish_reason`; the frontend then emits one terminal `GenerationEvent`. `[END]` is not stored as a fake Redis control message and terminal events are not inferred from client disconnects.
+
+See the component contracts in [inference-frontend](crates/inference-frontend/README.md), [inference-engine](crates/inference-engine/README.md), and [token-budget-engine](crates/token-budget-engine/README.md).
+
 ## Control Plane
 
 The Go control plane is outside the token hot path:

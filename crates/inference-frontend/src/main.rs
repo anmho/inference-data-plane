@@ -112,6 +112,7 @@ struct RuntimeRequest {
     prompt: Option<String>,
     max_tokens: usize,
     temperature: f32,
+    stop: Vec<String>,
     stream: bool,
 }
 
@@ -328,6 +329,7 @@ async fn admit_and_dispatch(
         prompt: (!request.prompt.is_empty()).then_some(request.prompt.clone()),
         max_tokens: budget.admitted_max_tokens,
         temperature: request.temperature,
+        stop: request.stop.clone(),
         stream: true,
     };
     let prefix = prompt_prefix(&request);

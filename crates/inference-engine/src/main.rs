@@ -85,6 +85,8 @@ struct RuntimeRequest {
     prompt: Option<String>,
     max_tokens: usize,
     temperature: f32,
+    #[serde(default)]
+    stop: Vec<String>,
 }
 
 #[derive(Debug, Default)]
@@ -384,6 +386,9 @@ async fn stream_openai_compatible(
         payload["messages"] =
             json!([{"role": "user", "content": request.prompt.clone().unwrap_or_default()}]);
     }
+    if !request.stop.is_empty() {
+        payload["stop"] = json!(request.stop);
+    }
     let response = config
         .http
         .post(format!(
@@ -541,6 +546,7 @@ mod tests {
             prompt: None,
             max_tokens: 10,
             temperature: 0.0,
+            stop: Vec::new(),
         };
         assert_eq!(extract_prompt(&request), "hello\nworld");
     }
