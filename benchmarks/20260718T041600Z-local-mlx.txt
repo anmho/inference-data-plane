@@ -1,0 +1,130 @@
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: scripts/k6-connect.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 3 max VUs, 50s max duration (incl. graceful stop):
+              * generate: 2 looping VUs for 20s (exec: generate, gracefulStop: 30s)
+              * stream_generate: 1 looping VUs for 20s (exec: streamGenerate, gracefulStop: 30s)
+
+
+running (01.0s), 3/3 VUs, 7 complete and 0 interrupted iterations
+generate          [   5% ] 2 VUs  01.0s/20s
+stream_generate   [   5% ] 1 VUs  01.0s/20s
+
+running (02.0s), 3/3 VUs, 15 complete and 0 interrupted iterations
+generate          [  10% ] 2 VUs  02.0s/20s
+stream_generate   [  10% ] 1 VUs  02.0s/20s
+
+running (03.0s), 3/3 VUs, 23 complete and 0 interrupted iterations
+generate          [  15% ] 2 VUs  03.0s/20s
+stream_generate   [  15% ] 1 VUs  03.0s/20s
+
+running (04.0s), 3/3 VUs, 32 complete and 0 interrupted iterations
+generate          [  20% ] 2 VUs  04.0s/20s
+stream_generate   [  20% ] 1 VUs  04.0s/20s
+
+running (05.0s), 3/3 VUs, 40 complete and 0 interrupted iterations
+generate          [  25% ] 2 VUs  05.0s/20s
+stream_generate   [  25% ] 1 VUs  05.0s/20s
+
+running (06.0s), 3/3 VUs, 48 complete and 0 interrupted iterations
+generate          [  30% ] 2 VUs  06.0s/20s
+stream_generate   [  30% ] 1 VUs  06.0s/20s
+
+running (07.0s), 3/3 VUs, 56 complete and 0 interrupted iterations
+generate          [  35% ] 2 VUs  07.0s/20s
+stream_generate   [  35% ] 1 VUs  07.0s/20s
+
+running (08.0s), 3/3 VUs, 64 complete and 0 interrupted iterations
+generate          [  40% ] 2 VUs  08.0s/20s
+stream_generate   [  40% ] 1 VUs  08.0s/20s
+
+running (09.0s), 3/3 VUs, 72 complete and 0 interrupted iterations
+generate          [  45% ] 2 VUs  09.0s/20s
+stream_generate   [  45% ] 1 VUs  09.0s/20s
+
+running (10.0s), 3/3 VUs, 80 complete and 0 interrupted iterations
+generate          [  50% ] 2 VUs  10.0s/20s
+stream_generate   [  50% ] 1 VUs  10.0s/20s
+
+running (11.0s), 3/3 VUs, 86 complete and 0 interrupted iterations
+generate          [  55% ] 2 VUs  11.0s/20s
+stream_generate   [  55% ] 1 VUs  11.0s/20s
+
+running (12.0s), 3/3 VUs, 89 complete and 0 interrupted iterations
+generate          [  60% ] 2 VUs  12.0s/20s
+stream_generate   [  60% ] 1 VUs  12.0s/20s
+
+running (13.0s), 3/3 VUs, 92 complete and 0 interrupted iterations
+generate          [  65% ] 2 VUs  13.0s/20s
+stream_generate   [  65% ] 1 VUs  13.0s/20s
+
+running (14.0s), 3/3 VUs, 95 complete and 0 interrupted iterations
+generate          [  70% ] 2 VUs  14.0s/20s
+stream_generate   [  70% ] 1 VUs  14.0s/20s
+
+running (15.0s), 3/3 VUs, 99 complete and 0 interrupted iterations
+generate          [  75% ] 2 VUs  15.0s/20s
+stream_generate   [  75% ] 1 VUs  15.0s/20s
+
+running (16.0s), 3/3 VUs, 104 complete and 0 interrupted iterations
+generate          [  80% ] 2 VUs  16.0s/20s
+stream_generate   [  80% ] 1 VUs  16.0s/20s
+
+running (17.0s), 3/3 VUs, 110 complete and 0 interrupted iterations
+generate          [  85% ] 2 VUs  17.0s/20s
+stream_generate   [  85% ] 1 VUs  17.0s/20s
+
+running (18.0s), 3/3 VUs, 117 complete and 0 interrupted iterations
+generate          [  90% ] 2 VUs  18.0s/20s
+stream_generate   [  90% ] 1 VUs  18.0s/20s
+
+running (19.0s), 3/3 VUs, 125 complete and 0 interrupted iterations
+generate          [  95% ] 2 VUs  19.0s/20s
+stream_generate   [  95% ] 1 VUs  19.0s/20s
+
+running (20.0s), 3/3 VUs, 133 complete and 0 interrupted iterations
+generate          [ 100% ] 2 VUs  20.0s/20s
+stream_generate   [ 100% ] 1 VUs  20.0s/20s
+
+     ✓ Generate status 200
+     ✓ Generate protobuf body
+     ✓ StreamGenerate status 200
+     ✓ StreamGenerate connect envelopes
+
+   ✓ checks.........................: 100.00% ✓ 272        ✗ 0  
+     data_received..................: 235 kB  12 kB/s
+     data_sent......................: 39 kB   1.9 kB/s
+     generate_latency...............: avg=393.43ms min=154.43ms med=321.05ms max=1s       p(90)=638.91ms p(95)=806.18ms
+     generate_requests..............: 91      4.48283/s
+     generate_tokens................: 2821    138.967742/s
+     generated_tokens...............: 3901    192.170564/s
+     http_req_blocked...............: avg=37.61µs  min=2µs      med=3µs      max=1.63ms   p(90)=6µs      p(95)=8µs     
+     http_req_connecting............: avg=4.12µs   min=0s       med=0s       max=206µs    p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=393.38ms min=154.43ms med=320.96ms max=1s       p(90)=621.21ms p(95)=849.33ms
+       { expected_response:true }...: avg=393.38ms min=154.43ms med=320.96ms max=1s       p(90)=621.21ms p(95)=849.33ms
+   ✓ http_req_failed................: 0.00%   ✓ 0          ✗ 136
+     http_req_receiving.............: avg=129.28ms min=26µs     med=46µs     max=933.98ms p(90)=327.95ms p(95)=508.9ms 
+     http_req_sending...............: avg=27.82µs  min=13µs     med=19µs     max=334µs    p(90)=29.5µs   p(95)=39.49µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=264.07ms min=1.3ms    med=315.75ms max=1s       p(90)=511.36ms p(95)=722.47ms
+     http_reqs......................: 136     6.699615/s
+     iteration_duration.............: avg=444.53ms min=207.66ms med=371.74ms max=1.05s    p(90)=672.4ms  p(95)=901.29ms
+     iterations.....................: 136     6.699615/s
+     stream_latency.................: avg=393.29ms min=264.86ms med=320.87ms max=937.32ms p(90)=598.21ms p(95)=851.95ms
+     stream_requests................: 45      2.216784/s
+     stream_tokens..................: 1080    53.202822/s
+     vus............................: 3       min=3        max=3
+     vus_max........................: 3       min=3        max=3
+
+
+running (20.3s), 0/3 VUs, 136 complete and 0 interrupted iterations
+generate        ✓ [ 100% ] 2 VUs  20s
+stream_generate ✓ [ 100% ] 1 VUs  20s
