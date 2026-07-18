@@ -971,16 +971,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inference-control-plane"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
 name = "inference-engine"
 version = "0.1.0"
 dependencies = [

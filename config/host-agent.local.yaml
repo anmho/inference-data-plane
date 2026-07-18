@@ -1,0 +1,9 @@
+bind_addr: "0.0.0.0:18001"
+auth_token: "local-host-agent"
+catalog_glob: "models/*.yaml"
+mlx:
+  executable: "mlx_lm.server"
+  host: "0.0.0.0"
+  port: 18000
+  startup_timeout_seconds: 300
+  run_dir: ".run/models"

@@ -4,7 +4,6 @@ members = [
     "crates/generation-quota-limiter",
     "crates/inference-frontend",
     "crates/inference-engine",
-    "crates/inference-control-plane",
     "crates/inference-streams",
 ]
 resolver = "2"
@@ -32,11 +31,6 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
 sha2 = "0.10"
-temporalio-client = "0.4.0"
-temporalio-common = "0.4.0"
-temporalio-macros = "0.4.0"
-temporalio-sdk = "0.4.0"
-temporalio-sdk-core = "0.4.0"
 thiserror = "2"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "sync"] }
 tower-http = { version = "0.6", features = ["trace", "cors"] }

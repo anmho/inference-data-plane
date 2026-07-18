@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package inference.control.v1;
+
+option go_package = "github.com/anmho/inference-data-plane/controlplane/gen/inference/control/v1;controlv1";
+
+service ModelControlService {
+  rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+  rpc GetModel(GetModelRequest) returns (Model);
+  rpc ResolveModel(ResolveModelRequest) returns (ResolvedModel);
+  rpc LoadModel(ModelLifecycleRequest) returns (ModelOperation);
+  rpc DrainModel(ModelLifecycleRequest) returns (ModelOperation);
+  rpc UnloadModel(ModelLifecycleRequest) returns (ModelOperation);
+}
+
+service MlxHostAgentService {
+  rpc EnsureModel(EnsureModelRequest) returns (HostModelStatus);
+  rpc GetModelStatus(GetModelRequest) returns (HostModelStatus);
+  rpc DrainModel(ModelLifecycleRequest) returns (HostModelStatus);
+  rpc StopModel(ModelLifecycleRequest) returns (HostModelStatus);
+}
+
+message ListModelsRequest {}
+message ListModelsResponse { repeated Model models = 1; }
+message GetModelRequest { string model_id = 1; }
+message ResolveModelRequest { string model_id = 1; }
+message ModelLifecycleRequest { string model_id = 1; }
+
+message Model {
+  string id = 1;
+  string revision = 2;
+  string tokenizer_id = 3;
+  string tokenizer_revision = 4;
+  uint64 context_limit = 5;
+  uint64 max_output_tokens = 6;
+  string local_runtime = 7;
+  string cloud_runtime = 8;
+}
+
+message ResolvedModel {
+  Model model = 1;
+  string endpoint = 2;
+  string status = 3;
+}
+
+message ModelOperation {
+  string workflow_id = 1;
+  string model_id = 2;
+  string operation = 3;
+}
+
+message EnsureModelRequest { string model_id = 1; }
+
+message HostModelStatus {
+  string model_id = 1;
+  string state = 2;
+  int64 pid = 3;
+  string endpoint = 4;
+  string message = 5;
+}

@@ -1,0 +1,9 @@
+bind_addr: "127.0.0.1:18100"
+catalog_glob: "models/*.yaml"
+namespace: "inference-data-plane"
+host_agent_url: "http://127.0.0.1:18001"
+host_agent_token: "local-host-agent"
+temporal:
+  address: "127.0.0.1:7233"
+  namespace: "default"
+  task_queue: "inference-model-lifecycle"

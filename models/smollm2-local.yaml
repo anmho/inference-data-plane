@@ -1,0 +1,72 @@
+apiVersion: serving.kserve.io/v1alpha2
+kind: LLMInferenceServiceConfig
+metadata:
+  name: smollm2-135m-model
+  namespace: inference-data-plane
+  annotations:
+    inference.anmho.com/revision: main
+    inference.anmho.com/tokenizer-id: HuggingFaceTB/SmolLM2-135M-Instruct
+    inference.anmho.com/tokenizer-revision: main
+    inference.anmho.com/context-limit: "4096"
+    inference.anmho.com/max-output-tokens: "1024"
+    inference.anmho.com/local-runtime: mlx-community/SmolLM2-135M-Instruct
+    inference.anmho.com/cloud-runtime: HuggingFaceTB/SmolLM2-135M-Instruct
+    inference.anmho.com/endpoint: http://smollm2-135m-kserve-workload-svc.inference-data-plane.svc.cluster.local:8000
+    inference.anmho.com/kserve-service: smollm2-135m
+spec:
+  model:
+    uri: hf://HuggingFaceTB/SmolLM2-135M-Instruct
+    name: mlx-community/SmolLM2-135M-Instruct
+  storageInitializer:
+    enabled: false
+---
+apiVersion: serving.kserve.io/v1alpha2
+kind: LLMInferenceService
+metadata:
+  name: smollm2-135m
+  namespace: inference-data-plane
+spec:
+  baseRefs:
+    - name: smollm2-135m-model
+  replicas: 1
+  template:
+    containers:
+      - name: main
+        image: alpine/socat:1.8.0.3
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            printf 'HTTP/1.1 200 OK\r\nContent-Length: 3\r\nConnection: close\r\n\r\nok\n' >/tmp/live-response
+            socat tcp-listen:8001,fork,reuseaddr exec:"cat /tmp/live-response" &
+            exec socat tcp-listen:8000,fork,reuseaddr tcp-connect:host.minikube.internal:18000
+        ports:
+          - containerPort: 8000
+          - containerPort: 8001
+        startupProbe:
+          httpGet:
+            path: /live
+            port: 8001
+          periodSeconds: 1
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /live
+            port: 8001
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          periodSeconds: 1
+          failureThreshold: 3
+        securityContext:
+          runAsUser: 65532
+          runAsGroup: 65532
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
