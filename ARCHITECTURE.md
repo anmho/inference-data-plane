@@ -598,27 +598,51 @@ inference-data-plane/
 ## Next Steps & Roadmap
 
 ### Immediate
-- [ ] Add Terraform integration to `projects/inference/` for Vault secret syncing
-- [ ] Wire up terraform-managed GCP secrets
-- [ ] Set Temporal API key in anmho-infra-prod
+- [ ] Add Terraform integration to [projects/inference/](https://github.com/anmho/terraform/blob/main/projects/inference/main.tf) for Vault secret syncing
+- [ ] Wire up terraform-managed GCP secrets via Secret Manager
+- [ ] Set Temporal API key in [anmho-infra-prod](https://console.cloud.google.com/welcome?project=anmho-infra-prod) GCP project
 
 ### Short Term
-- [ ] Integrate with `codex/inference-gke-atlantis` terraform branch
-- [ ] Publish separate library crates (token-budget-engine, quota-limiter)
-- [ ] Add more model support beyond SmolLM2
+- [ ] Integrate with [codex/inference-gke-atlantis](https://github.com/anmho/terraform/tree/codex/inference-gke-atlantis) terraform branch
+- [ ] Publish separate library crates: [token-budget-engine](https://github.com/anmho/inference-data-plane/tree/main/crates/token-budget-engine), [generation-quota-limiter](https://github.com/anmho/inference-data-plane/tree/main/crates/generation-quota-limiter)
+- [ ] Add more model support beyond SmolLM2 (e.g., Llama 2, Mistral)
 
 ### Future
 - [ ] GPU idling optimization
 - [ ] Multi-tenant isolation
 - [ ] Advanced monitoring dashboard
 - [ ] Model fine-tuning integration
+- [ ] LoRA adapter support
 
 ---
 
 ## References
 
-- **GitHub:** https://github.com/anmho/inference-data-plane
-- **Terraform (Kubernetes Infra):** https://github.com/anmho/terraform/tree/codex/inference-gke-atlantis
-- **vLLM:** https://github.com/vllm-project/vllm
-- **Temporal:** https://temporal.io
-- **Cloud Run:** https://cloud.google.com/run
+### Project & Source Code
+- **Main Repository:** https://github.com/anmho/inference-data-plane
+  - [Crates](https://github.com/anmho/inference-data-plane/tree/main/crates)
+  - [Kubernetes Manifests](https://github.com/anmho/inference-data-plane/tree/main/k8s)
+  - [Cloud Run Configs](https://github.com/anmho/inference-data-plane/tree/main/cloudrun)
+  - [Deployment Scripts](https://github.com/anmho/inference-data-plane/tree/main/scripts)
+
+- **Infrastructure & Terraform:** https://github.com/anmho/terraform/tree/codex/inference-gke-atlantis
+  - [Inference Project](https://github.com/anmho/terraform/blob/main/projects/inference/main.tf)
+  - [GCP Resources](https://console.cloud.google.com/welcome?project=anmho-infra-prod)
+
+### External Dependencies
+- **vLLM:** https://github.com/vllm-project/vllm — GPU-accelerated LLM serving
+  - [OpenAI Compatibility](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html)
+- **Temporal:** https://temporal.io — Distributed workflow orchestration
+  - [Rust SDK](https://github.com/temporalio/sdk-rust)
+  - [mTLS Setup](https://docs.temporal.io/concepts/what-is-a-temporal-client#mTLS)
+- **Cloud Run:** https://cloud.google.com/run — Serverless container runtime
+  - [GPU Support](https://cloud.google.com/run/docs/configuring/services/gpu)
+- **KEDA:** https://keda.sh/ — Kubernetes-based event driven autoscaling
+  - [HTTP Scaler](https://keda.sh/docs/latest/scalers/http/)
+- **Axum:** https://github.com/tokio-rs/axum — Async web framework
+- **Connect Protocol:** https://connectrpc.com/ — RPC framework with gRPC & HTTP support
+
+### Configuration & Deployment
+- **Docker Compose:** [docker-compose.yml](https://github.com/anmho/inference-data-plane/blob/main/docker-compose.yml)
+- **Makefile:** [Makefile](https://github.com/anmho/inference-data-plane/blob/main/Makefile)
+- **Configuration:** [config/](https://github.com/anmho/inference-data-plane/tree/main/config)
