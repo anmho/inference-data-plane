@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package inference.internal.v1;
+
+message GenerationJob {
+  uint32 schema_version = 1;
+  string request_id = 2;
+  string model_id = 3;
+  string model_revision = 4;
+  string model_endpoint = 5;
+  bytes request_json = 6;
+  uint64 deadline_unix_ms = 7;
+  string reservation_id = 8;
+  CacheMetadata cache = 9;
+}
+
+message CacheMetadata {
+  string cache_key = 1;
+  uint64 prefix_tokens_estimate = 2;
+}
+
+message GenerationResult {
+  uint32 schema_version = 1;
+  string request_id = 2;
+  string attempt_id = 3;
+  oneof event {
+    AttemptStarted attempt_started = 10;
+    TokenChunk token = 11;
+    GenerationCompleted completed = 12;
+    GenerationFailed failed = 13;
+  }
+}
+
+message AttemptStarted {}
+
+message TokenChunk {
+  string text = 1;
+  uint64 cumulative_generated_tokens = 2;
+}
+
+message GenerationCompleted {
+  uint64 prompt_tokens = 1;
+  uint64 generated_tokens = 2;
+  string finish_reason = 3;
+}
+
+message GenerationFailed {
+  string code = 1;
+  string message = 2;
+  bool retryable = 3;
+}
