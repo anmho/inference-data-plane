@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-frontend
+  namespace: inference-data-plane
+spec:
+  template:
+    spec:
+      containers:
+        - name: frontend
+          imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generation-worker
+  namespace: inference-data-plane
+spec:
+  template:
+    spec:
+      containers:
+        - name: worker
+          imagePullPolicy: Always

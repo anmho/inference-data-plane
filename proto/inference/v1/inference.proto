@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package inference.v1;
+
+service InferenceService {
+  rpc Generate(GenerateRequest) returns (GenerateResponse);
+  rpc StreamGenerate(GenerateRequest) returns (stream GenerateChunk);
+}
+
+message ChatMessage {
+  string role = 1;
+  string content = 2;
+}
+
+message GenerateRequest {
+  string model = 1;
+  repeated ChatMessage messages = 2;
+  string prompt = 3;
+  uint64 max_tokens = 4;
+  float temperature = 5;
+}
+
+message GenerateResponse {
+  string request_id = 1;
+  string model = 2;
+  string text = 3;
+  uint64 prompt_tokens = 4;
+  uint64 generated_tokens = 5;
+  string finish_reason = 6;
+}
+
+message GenerateChunk {
+  string request_id = 1;
+  string model = 2;
+  string delta = 3;
+  uint64 generated_tokens = 4;
+  string finish_reason = 5;
+}

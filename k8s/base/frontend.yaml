@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-frontend
+  namespace: inference-data-plane
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: inference-frontend
+  template:
+    metadata:
+      labels:
+        app: inference-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: inference-data-plane/frontend:dev
+          imagePullPolicy: Never
+          env:
+            - name: CONFIG_FILE
+              value: /app/config/service.yaml
+            - name: RUST_LOG
+              value: info,inference_frontend=debug,generation_worker=debug
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: inference-valkey-url
+                  key: url
+                  optional: true
+          volumeMounts:
+            - name: service-config
+              mountPath: /app/config/service.yaml
+              subPath: service.yaml
+              readOnly: true
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5
+      volumes:
+        - name: service-config
+          configMap:
+            name: inference-data-plane-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-frontend
+  namespace: inference-data-plane
+spec:
+  type: ClusterIP
+  selector:
+    app: inference-frontend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

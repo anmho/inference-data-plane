@@ -1,0 +1,40 @@
+frontend:
+  bind_addr: "0.0.0.0:8080"
+
+broker:
+  url: "redis://127.0.0.1:6379"
+
+model:
+  id: "mlx-community/SmolLM2-135M-Instruct"
+  context_limit: 4096
+  default_max_tokens: 256
+  max_output_tokens: 1024
+
+backend:
+  kind: "mlx"
+  mlx_base_url: "http://127.0.0.1:18000"
+  synthetic_token_delay_ms: 0
+
+auth:
+  api_keys:
+    - "dev-key"
+
+quota:
+  requests_per_minute: 6000
+  prompt_tokens_per_minute: 1200000
+  generated_tokens_per_minute: 600000
+
+load_test:
+  generate_vus: 2
+  stream_vus: 1
+  duration: "20s"
+  request_timeout: "30s"
+
+smoke:
+  stream_max_tokens: 96
+
+gpu_idle_shutdown:
+  enabled: false
+  idle_seconds: 1
+  poll_seconds: 1
+  shutdown_command: ""

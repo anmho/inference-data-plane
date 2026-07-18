@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-data-plane-config
+  namespace: inference-data-plane
+data:
+  service.yaml: |
+    frontend:
+      bind_addr: "0.0.0.0:8080"
+
+    broker:
+      url: "redis://managed-valkey-required.invalid:6379"
+
+    model:
+      id: "mlx-community/SmolLM2-135M-Instruct"
+      context_limit: 4096
+      default_max_tokens: 256
+      max_output_tokens: 1024
+
+    backend:
+      kind: "mlx"
+      mlx_base_url: "http://host.minikube.internal:18000"
+      synthetic_token_delay_ms: 0
+
+    auth:
+      api_keys:
+        - "dev-key"
+
+    quota:
+      requests_per_minute: 600
+      prompt_tokens_per_minute: 1200000
+      generated_tokens_per_minute: 600000
+
+    gpu_idle_shutdown:
+      enabled: false
+      idle_seconds: 1
+      poll_seconds: 1
+      shutdown_command: ""

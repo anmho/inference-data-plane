@@ -1,0 +1,48 @@
+apiVersion: run.googleapis.com/v1
+kind: WorkerPool
+metadata:
+  name: inference-temporal-worker
+  labels:
+    app: inference
+    component: temporal-worker
+  annotations:
+    autoscaling.knative.dev/minScale: "0"
+    autoscaling.knative.dev/maxScale: "1"
+spec:
+  template:
+    metadata:
+      labels:
+        app: inference
+        component: temporal-worker
+      annotations:
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      serviceAccountName: inference-runtime@PROJECT_ID.iam.gserviceaccount.com
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/inference/inference-temporal-worker:latest
+          command: ["inference-temporal-worker"]
+          env:
+            - name: TEMPORAL_ENABLED
+              value: "true"
+            - name: TEMPORAL_ADDRESS
+              value: __TEMPORAL_ADDRESS__
+            - name: TEMPORAL_NAMESPACE
+              value: __TEMPORAL_NAMESPACE__
+            - name: TEMPORAL_TASK_QUEUE
+              value: inference-gpu
+            __TEMPORAL_SECRET_ENV__
+            - name: GPU_BACKEND_URL
+              value: __GPU_BACKEND_URL__
+            - name: BACKEND
+              value: vllm
+            - name: MODEL_ID
+              value: HuggingFaceTB/SmolLM2-135M-Instruct
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: inference-valkey-url
+                  key: latest
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi

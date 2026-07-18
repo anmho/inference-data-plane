@@ -1,0 +1,3 @@
+This is a deliberately plain prompt fixture used to exercise approximate token counting.
+It can be replaced with a real prompt file when testing context window behavior locally.
+

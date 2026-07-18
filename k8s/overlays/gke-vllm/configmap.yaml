@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-data-plane-config
+  namespace: inference-data-plane
+data:
+  service.yaml: |
+    frontend:
+      bind_addr: "0.0.0.0:8080"
+
+    broker:
+      url: "redis://managed-valkey-required.invalid:6379"
+
+    model:
+      id: "HuggingFaceTB/SmolLM2-135M-Instruct"
+      context_limit: 4096
+      default_max_tokens: 128
+      max_output_tokens: 512
+
+    backend:
+      kind: "vllm"
+      openai_base_url: "http://vllm.inference-data-plane.svc.cluster.local:8000"
+      synthetic_token_delay_ms: 0
+
+    auth:
+      api_keys:
+        - "dev-key"
+
+    quota:
+      requests_per_minute: 120
+      prompt_tokens_per_minute: 120000
+      generated_tokens_per_minute: 60000
+
+    gpu_idle_shutdown:
+      enabled: false
+      idle_seconds: 1
+      poll_seconds: 1
+      shutdown_command: ""

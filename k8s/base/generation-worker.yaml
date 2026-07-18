@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generation-worker
+  namespace: inference-data-plane
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: generation-worker
+  template:
+    metadata:
+      labels:
+        app: generation-worker
+    spec:
+      containers:
+        - name: worker
+          image: inference-data-plane/generation-worker:dev
+          imagePullPolicy: Never
+          env:
+            - name: CONFIG_FILE
+              value: /app/config/service.yaml
+            - name: RUST_LOG
+              value: info,inference_frontend=debug,generation_worker=debug
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: inference-valkey-url
+                  key: url
+                  optional: true
+          volumeMounts:
+            - name: service-config
+              mountPath: /app/config/service.yaml
+              subPath: service.yaml
+              readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: service-config
+          configMap:
+            name: inference-data-plane-config
