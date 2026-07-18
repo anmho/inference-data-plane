@@ -25,3 +25,9 @@ RDMA is rejected for v1. Valkey RDMA is experimental, depends on Linux RDMA hard
 ## Consequences
 
 The repository carries two compatible RESP clients, but each has a narrow ownership boundary. A future benchmark can replace the metadata side with `fred`; RDMA requires a separate deployment milestone and fallback design.
+
+## References
+
+- [`fred` Rust Valkey/Redis client](https://docs.rs/fred/latest/fred/)
+- [Valkey Streams](https://valkey.io/topics/streams-intro/)
+- [Valkey RDMA client reference](https://github.com/valkey-io/valkey-go/tree/main/valkeyrdma)

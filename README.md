@@ -62,10 +62,10 @@ NVIDIA model identity: `HuggingFaceTB/SmolLM2-135M-Instruct` for vLLM.
 
 The broker is Valkey. The URI is still written as `redis://` because that is the standard RESP URI scheme understood by client libraries; it does not select a Redis server.
 
-- `fred` 10 provides the cloneable, automatically pipelined hot path for `XADD` publication.
+- [`fred` 10](https://docs.rs/fred/latest/fred/) provides the cloneable, automatically pipelined hot path for `XADD` publication.
 - `redis-rs` provides dedicated blocking connections for `XREAD`, `XREADGROUP`, and `XAUTOCLAIM`, plus Lua-backed quota/lease operations.
 - Blocking reads never share the auto-pipelined connection, so a blocked read cannot stall unrelated commands.
-- RDMA is not enabled. Valkey's RDMA transport is experimental, Linux/hardware specific, and unavailable on Apple Metal, ordinary Minikube networking, and managed Valkey services.
+- RDMA is not enabled. Valkey's [RDMA transport reference](https://github.com/valkey-io/valkey-go/tree/main/valkeyrdma) is experimental, Linux/hardware specific, and unavailable on Apple Metal, ordinary Minikube networking, and managed Valkey services.
 
 See [docs/decisions](docs/decisions) for the decision records and rejected alternatives.
 

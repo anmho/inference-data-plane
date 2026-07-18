@@ -23,3 +23,8 @@ The MLX host agent launches only fixed catalog entries, tracks child processes, 
 ## Consequences
 
 Temporal outages do not interrupt active token streaming. Model lifecycle can be audited and retried. Per-request priority, credit eviction, and GPU placement remain separate future scheduler concerns.
+
+## References
+
+- [Temporal Workflows](https://docs.temporal.io/workflows)
+- [KServe LLMInferenceService configuration](https://kserve.github.io/website/docs/model-serving/generative-inference/llmisvc/llmisvc-configuration)

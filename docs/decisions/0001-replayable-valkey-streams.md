@@ -23,3 +23,11 @@ Each terminal result Stream receives a 10-minute TTL. Active Streams refresh the
 ## Consequences
 
 Client disconnects do not cancel generation. Multiple subscribers receive identical ordered events. The API, not Valkey, remains the public security boundary.
+
+## References
+
+- [Valkey Streams](https://valkey.io/topics/streams-intro/)
+- [Valkey XREAD](https://valkey.io/commands/xread/)
+- [Valkey XREADGROUP](https://valkey.io/commands/xreadgroup/)
+- [Valkey XACK](https://valkey.io/commands/xack/)
+- [Valkey XAUTOCLAIM](https://valkey.io/commands/xautoclaim/)
