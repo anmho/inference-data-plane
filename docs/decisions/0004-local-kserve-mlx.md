@@ -23,3 +23,9 @@ Install only pinned cert-manager, Gateway API/GIE CRDs, LWS dependency, and the 
 ## Consequences
 
 The real model executes on Metal while KServe owns declaration/readiness and a stable endpoint. Temporal also probes that endpoint before completing a load workflow, avoiding stale KServe condition races. This validates lifecycle integration, not NVIDIA scheduling. Cloud vLLM uses the corresponding Hugging Face model artifact in a later milestone.
+
+## References
+
+- [KServe LLMInferenceService CRD API](https://kserve.github.io/website/docs/reference/crd-api)
+- [Minikube host access](https://minikube.sigs.k8s.io/docs/handbook/host-access/)
+- [MLX documentation](https://ml-explore.github.io/mlx/)

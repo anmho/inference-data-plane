@@ -34,6 +34,9 @@ spec:
             - "8000"
             - --gpu-memory-utilization
             - "0.75"
+            # vLLM owns continuous batching; these are runtime scheduler limits,
+            # not the per-request max_tokens policy enforced by the frontend.
+            # See https://docs.vllm.ai/en/stable/configuration/engine_args/.
             - --max-model-len
             - "4096"
           ports:

@@ -19,6 +19,7 @@ message GenerateRequest {
   string prompt = 3;
   uint64 max_tokens = 4;
   float temperature = 5;
+  repeated string stop = 6;
 }
 
 message GenerateResponse {

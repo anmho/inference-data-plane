@@ -17,3 +17,8 @@ Do not implement LMCache, ModelMesh, priority eviction, credit scheduling, GPU o
 ## Consequences
 
 Repeated-prefix latency can be measured on one runtime, but cross-replica KV reuse is not guaranteed. The next cache milestone needs multiple runtimes plus cache-aware routing or transfer, and the next scheduling milestone needs explicit fairness and preemption invariants.
+
+## References
+
+- [vLLM Automatic Prefix Caching](https://docs.vllm.ai/en/stable/design/prefix_caching/)
+- [vLLM engine arguments](https://docs.vllm.ai/en/stable/configuration/engine_args/)
